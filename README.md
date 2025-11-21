@@ -1,17 +1,23 @@
 ## Sample
 
-```zig title="2015/day_01.zig"
+In `2015/day_03.zig`:
+
+```zig
 pub fn part1(input: []const u8) [:0]const u8 {
-    // ...
+    _ = input;
     return "foo";
 }
 
 pub fn part2(input: []const u8) !i32 {
     std.debug.print("All your codebase are belong to us.\n", .{});
-    // ...
+    _ = input;
     return error.Overflow;
 }
+
+const std = @import("std");
 ```
+
+(`input/2015/day03.txt` exists)
 
 ```console
 $ zig build solve -Dday=..3
