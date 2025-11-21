@@ -8,7 +8,7 @@ pub fn part1(input: []const u8) [:0]const u8 {
     return "foo";
 }
 
-pub fn part2(input: []const u8) !i32 {
+pub fn part2(input: []u8) !i32 {
     std.debug.print("All your codebase are belong to us.\n", .{});
     _ = input;
     return error.Overflow;
