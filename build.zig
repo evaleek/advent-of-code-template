@@ -58,6 +58,11 @@ pub fn build(b: *Build) error{OutOfMemory}!void {
         "fail-stop",
         "If a solution returns an error, exit (default: false)",
     ) orelse false;
+    const part = b.option(
+        enum { @"1", @"2", both },
+        "part",
+        "Select which solution part to run",
+    ) orelse .both;
 
     const write_runner_source = b.addWriteFiles();
     const runner_path = write_runner_source.add("aoc_runner.zig", runner_source);
@@ -79,6 +84,7 @@ pub fn build(b: *Build) error{OutOfMemory}!void {
     runner_day_options.addOption(bool, "color", color);
     runner_day_options.addOption(bool, "failstop", stop_at_failure);
     runner_day_options.addOption([]const u8, "year", year);
+    runner_day_options.addOption(@TypeOf(part), "part", part);
     defer runner_mod.addOptions("days", runner_day_options);
 
     if (days_option) |days_string| {
@@ -279,7 +285,7 @@ pub const runner_source: [:0]const u8 =
     \\
     \\                file.close();
     \\
-    \\                if (has_part_1) {
+    \\                if (has_part_1 and (days.part == .@"1" or days.part == .both)) {
     \\                    const Solution = @TypeOf(Day.part1);
     \\                    if (comptime !isSolutionFn(Solution)) @compileError(std.fmt.comptimePrint(
     \\                        "expected a solution function type, found {s}",
@@ -359,7 +365,7 @@ pub const runner_source: [:0]const u8 =
     \\                    try writer.flush();
     \\                }
     \\
-    \\                if (has_part_2) {
+    \\                if (has_part_2 and (days.part == .@"2" or days.part == .both)) {
     \\                    const Solution = @TypeOf(Day.part2);
     \\                    if (comptime !isSolutionFn(Solution)) @compileError(std.fmt.comptimePrint(
     \\                        "expected a solution function type, found {s}",
