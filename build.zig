@@ -247,7 +247,7 @@ pub const runner_source: [:0]const u8 =
     \\            const input_file = input_dir.openFile(input_file_name, .{}) catch |err| err: {
     \\                switch (err) {
     \\                    error.FileNotFound => {
-    \\                        if (days.color) _ = try writer.write("\x1b[2m");
+    \\                        if (days.color) _ = try writer.write("\x1b[36m");
     \\                        try writer.print("[{d:0>2}/*]", .{day});
     \\                        if (days.color) _ = try writer.write("\x1b[0m");
     \\                        if (days.color) _ = try writer.write("\x1b[33m");
@@ -293,7 +293,7 @@ pub const runner_source: [:0]const u8 =
     \\                        const part1 = Day.part1(input);
     \\                        const nanoseconds = timer.read();
     \\
-    \\                        if (days.color) _ = try writer.write("\x1b[2m");
+    \\                        if (days.color) _ = try writer.write("\x1b[36m");
     \\                        try writer.print("[{d:0>2}/1]", .{day});
     \\                        if (days.color) _ = try writer.write("\x1b[0m");
     \\
@@ -333,7 +333,7 @@ pub const runner_source: [:0]const u8 =
     \\                    } else {
     \\                        const part1 = Day.part1(input);
     \\
-    \\                        if (days.color) _ = try writer.write("\x1b[2m");
+    \\                        if (days.color) _ = try writer.write("\x1b[36m");
     \\                        try writer.print("[{d:0>2}/1]", .{day});
     \\                        if (days.color) _ = try writer.write("\x1b[0m");
     \\
@@ -373,7 +373,7 @@ pub const runner_source: [:0]const u8 =
     \\                        const part2 = Day.part2(input);
     \\                        const nanoseconds = timer.read();
     \\
-    \\                        if (days.color) _ = try writer.write("\x1b[2m");
+    \\                        if (days.color) _ = try writer.write("\x1b[36m");
     \\                        try writer.print("[{d:0>2}/2]", .{day});
     \\                        if (days.color) _ = try writer.write("\x1b[0m");
     \\
@@ -413,7 +413,7 @@ pub const runner_source: [:0]const u8 =
     \\                    } else {
     \\                        const part2 = Day.part2(input);
     \\
-    \\                        if (days.color) _ = try writer.write("\x1b[2m");
+    \\                        if (days.color) _ = try writer.write("\x1b[36m");
     \\                        try writer.print("[{d:0>2}/2]", .{day});
     \\                        if (days.color) _ = try writer.write("\x1b[0m");
     \\
@@ -440,7 +440,7 @@ pub const runner_source: [:0]const u8 =
     \\                }
     \\            }
     \\        } else {
-    \\            if (days.color) _ = try writer.write("\x1b[2m");
+    \\            if (days.color) _ = try writer.write("\x1b[36m");
     \\            try writer.print("[{d:0>2}/*]", .{ day });
     \\            if (days.color) _ = try writer.write("\x1b[0m");
     \\            _ = try writer.write("  ");
