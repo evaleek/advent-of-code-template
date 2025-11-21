@@ -1,3 +1,4 @@
+input/
 .zig-cache/
 zig-out/
 /release/
