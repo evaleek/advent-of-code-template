@@ -252,16 +252,16 @@ pub const runner_source: [:0]const u8 =
     \\            const input_file = input_dir.openFile(input_file_name, .{}) catch |err| err: {
     \\                switch (err) {
     \\                    error.FileNotFound => {
-    \\                        if (days.color) try writer.writeAll("\x1b[36m");
+    \\                        if (color) try writer.writeAll("\x1b[36m");
     \\                        try writer.print("[{d:0>2}/*]", .{day});
-    \\                        if (days.color) try writer.writeAll("\x1b[0m");
-    \\                        if (days.color) try writer.writeAll("\x1b[33m");
+    \\                        if (color) try writer.writeAll("\x1b[0m");
+    \\                        if (color) try writer.writeAll("\x1b[33m");
     \\                        try writer.writeAll("  (missing ");
-    \\                        if (days.color) try writer.writeAll("\x1b[0m");
+    \\                        if (color) try writer.writeAll("\x1b[0m");
     \\                        try writer.print("input/{s}", .{input_file_name});
-    \\                        if (days.color) try writer.writeAll("\x1b[33m");
+    \\                        if (color) try writer.writeAll("\x1b[33m");
     \\                        try writer.writeAll(")\n");
-    \\                        if (days.color) try writer.writeAll("\x1b[0m");
+    \\                        if (color) try writer.writeAll("\x1b[0m");
     \\                        try writer.flush();
     \\                    },
     \\                    else => |e| {
@@ -298,25 +298,25 @@ pub const runner_source: [:0]const u8 =
     \\                        const part1 = Day.part1(input);
     \\                        const nanoseconds = timer.read();
     \\
-    \\                        if (days.color) try writer.writeAll("\x1b[36m");
+    \\                        if (color) try writer.writeAll("\x1b[36m");
     \\                        try writer.print("[{d:0>2}/1]", .{day});
-    \\                        if (days.color) try writer.writeAll("\x1b[0m");
+    \\                        if (color) try writer.writeAll("\x1b[0m");
     \\
     \\                        if (is_err) {
     \\                            if (part1) |answer| {
     \\                                try writer.writeAll(" ");
-    \\                                if (days.color) try writer.writeAll("\x1b[90m");
+    \\                                if (color) try writer.writeAll("\x1b[90m");
     \\                                try writer.writeAll("(");
     \\                                const fill = try printTime(writer, nanoseconds);
     \\                                try writer.writeAll(")");
-    \\                                if (days.color) try writer.writeAll("\x1b[0m");
+    \\                                if (color) try writer.writeAll("\x1b[0m");
     \\                                try writer.splatByteAll(' ', fill);
     \\                                try printAnswer(writer, answer);
     \\                            } else |err| {
     \\                                try writer.writeAll("  ");
-    \\                                if (days.color) try writer.writeAll("\x1b[31m");
+    \\                                if (color) try writer.writeAll("\x1b[31m");
     \\                                try writer.writeAll("failed");
-    \\                                if (days.color) try writer.writeAll("\x1b[0m");
+    \\                                if (color) try writer.writeAll("\x1b[0m");
     \\                                try writer.print(": {t}\n", .{ err });
     \\                                failed += 1;
     \\                                if (days.failstop) {
@@ -326,11 +326,11 @@ pub const runner_source: [:0]const u8 =
     \\                            }
     \\                        } else {
     \\                            try writer.writeAll(" ");
-    \\                            if (days.color) try writer.writeAll("\x1b[90m");
+    \\                            if (color) try writer.writeAll("\x1b[90m");
     \\                            try writer.writeAll("(");
     \\                            const fill = try printTime(writer, nanoseconds);
     \\                            try writer.writeAll(")");
-    \\                            if (days.color) try writer.writeAll("\x1b[0m");
+    \\                            if (color) try writer.writeAll("\x1b[0m");
     \\                            try writer.splatByteAll(' ', fill);
     \\                            try printAnswer(writer, part1);
     \\                        }
@@ -338,18 +338,18 @@ pub const runner_source: [:0]const u8 =
     \\                    } else {
     \\                        const part1 = Day.part1(input);
     \\
-    \\                        if (days.color) try writer.writeAll("\x1b[36m");
+    \\                        if (color) try writer.writeAll("\x1b[36m");
     \\                        try writer.print("[{d:0>2}/1]", .{day});
-    \\                        if (days.color) try writer.writeAll("\x1b[0m");
+    \\                        if (color) try writer.writeAll("\x1b[0m");
     \\
     \\                        if (is_err) {
     \\                            if (part1) |answer| {
     \\                                try printAnswer(writer, answer);
     \\                            } else |err| {
     \\                                try writer.writeAll("  ");
-    \\                                if (days.color) try writer.writeAll("\x1b[31m");
+    \\                                if (color) try writer.writeAll("\x1b[31m");
     \\                                try writer.writeAll("failed");
-    \\                                if (days.color) try writer.writeAll("\x1b[0m");
+    \\                                if (color) try writer.writeAll("\x1b[0m");
     \\                                try writer.print(": {t}\n", .{ err });
     \\                                failed += 1;
     \\                                if (days.failstop) {
@@ -378,25 +378,25 @@ pub const runner_source: [:0]const u8 =
     \\                        const part2 = Day.part2(input);
     \\                        const nanoseconds = timer.read();
     \\
-    \\                        if (days.color) try writer.writeAll("\x1b[36m");
+    \\                        if (color) try writer.writeAll("\x1b[36m");
     \\                        try writer.print("[{d:0>2}/2]", .{day});
-    \\                        if (days.color) try writer.writeAll("\x1b[0m");
+    \\                        if (color) try writer.writeAll("\x1b[0m");
     \\
     \\                        if (is_err) {
     \\                            if (part2) |answer| {
     \\                                try writer.writeAll(" ");
-    \\                                if (days.color) try writer.writeAll("\x1b[90m");
+    \\                                if (color) try writer.writeAll("\x1b[90m");
     \\                                try writer.writeAll("(");
     \\                                const fill = try printTime(writer, nanoseconds);
     \\                                try writer.writeAll(")");
-    \\                                if (days.color) try writer.writeAll("\x1b[0m");
+    \\                                if (color) try writer.writeAll("\x1b[0m");
     \\                                try writer.splatByteAll(' ', fill);
     \\                                try printAnswer(writer, answer);
     \\                            } else |err| {
     \\                                try writer.writeAll("  ");
-    \\                                if (days.color) try writer.writeAll("\x1b[31m");
+    \\                                if (color) try writer.writeAll("\x1b[31m");
     \\                                try writer.writeAll("failed");
-    \\                                if (days.color) try writer.writeAll("\x1b[0m");
+    \\                                if (color) try writer.writeAll("\x1b[0m");
     \\                                try writer.print(": {t}\n", .{ err });
     \\                                failed += 1;
     \\                                if (days.failstop) {
@@ -406,11 +406,11 @@ pub const runner_source: [:0]const u8 =
     \\                            }
     \\                        } else {
     \\                            try writer.writeAll(" ");
-    \\                            if (days.color) try writer.writeAll("\x1b[90m");
+    \\                            if (color) try writer.writeAll("\x1b[90m");
     \\                            try writer.writeAll("(");
     \\                            const fill = try printTime(writer, nanoseconds);
     \\                            try writer.writeAll(")");
-    \\                            if (days.color) try writer.writeAll("\x1b[0m");
+    \\                            if (color) try writer.writeAll("\x1b[0m");
     \\                            try writer.splatByteAll(' ', fill);
     \\                            try printAnswer(writer, part2);
     \\                        }
@@ -418,18 +418,18 @@ pub const runner_source: [:0]const u8 =
     \\                    } else {
     \\                        const part2 = Day.part2(input);
     \\
-    \\                        if (days.color) try writer.writeAll("\x1b[36m");
+    \\                        if (color) try writer.writeAll("\x1b[36m");
     \\                        try writer.print("[{d:0>2}/2]", .{day});
-    \\                        if (days.color) try writer.writeAll("\x1b[0m");
+    \\                        if (color) try writer.writeAll("\x1b[0m");
     \\
     \\                        if (is_err) {
     \\                            if (part2) |answer| {
     \\                                try printAnswer(writer, answer);
     \\                            } else |err| {
     \\                                try writer.writeAll("  ");
-    \\                                if (days.color) try writer.writeAll("\x1b[31m");
+    \\                                if (color) try writer.writeAll("\x1b[31m");
     \\                                try writer.writeAll("failed");
-    \\                                if (days.color) try writer.writeAll("\x1b[0m");
+    \\                                if (color) try writer.writeAll("\x1b[0m");
     \\                                try writer.print(": {t}\n", .{ err });
     \\                                failed += 1;
     \\                                if (days.failstop) {
@@ -445,13 +445,13 @@ pub const runner_source: [:0]const u8 =
     \\                }
     \\            }
     \\        } else {
-    \\            if (days.color) try writer.writeAll("\x1b[36m");
+    \\            if (color) try writer.writeAll("\x1b[36m");
     \\            try writer.print("[{d:0>2}/*]", .{ day });
-    \\            if (days.color) try writer.writeAll("\x1b[0m");
+    \\            if (color) try writer.writeAll("\x1b[0m");
     \\            try writer.writeAll("  ");
-    \\            if (days.color) try writer.writeAll("\x1b[33m");
+    \\            if (color) try writer.writeAll("\x1b[33m");
     \\            try writer.writeAll("(missing both parts)");
-    \\            if (days.color) try writer.writeAll("\x1b[0m");
+    \\            if (color) try writer.writeAll("\x1b[0m");
     \\            try writer.writeAll("\n");
     \\        }
     \\    }
