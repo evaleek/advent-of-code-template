@@ -217,7 +217,6 @@ pub const runner_source: [:0]const u8 =
     \\    if (days.timer and !timer_supported)
     \\        std.log.err("performance timer is unsupported on the host system", .{});
     \\    const color = days.color and @import("builtin").target.os.tag != .windows;
-    \\    _ = color;
     \\
     \\    // TODO fs -> Io in 0.16
     \\    const cwd = std.fs.cwd();
@@ -311,7 +310,7 @@ pub const runner_source: [:0]const u8 =
     \\                                const fill = try printTime(writer, nanoseconds);
     \\                                try writer.writeAll(")");
     \\                                if (days.color) try writer.writeAll("\x1b[0m");
-    \\                                _ = try writer.splatByte(' ', fill);
+    \\                                try writer.splatByteAll(' ', fill);
     \\                                try printAnswer(writer, answer);
     \\                            } else |err| {
     \\                                try writer.writeAll("  ");
@@ -332,7 +331,7 @@ pub const runner_source: [:0]const u8 =
     \\                            const fill = try printTime(writer, nanoseconds);
     \\                            try writer.writeAll(")");
     \\                            if (days.color) try writer.writeAll("\x1b[0m");
-    \\                            _ = try writer.splatByte(' ', fill);
+    \\                            try writer.splatByteAll(' ', fill);
     \\                            try printAnswer(writer, part1);
     \\                        }
     \\                        total_ns += nanoseconds;
@@ -391,7 +390,7 @@ pub const runner_source: [:0]const u8 =
     \\                                const fill = try printTime(writer, nanoseconds);
     \\                                try writer.writeAll(")");
     \\                                if (days.color) try writer.writeAll("\x1b[0m");
-    \\                                _ = try writer.splatByte(' ', fill);
+    \\                                try writer.splatByteAll(' ', fill);
     \\                                try printAnswer(writer, answer);
     \\                            } else |err| {
     \\                                try writer.writeAll("  ");
@@ -412,7 +411,7 @@ pub const runner_source: [:0]const u8 =
     \\                            const fill = try printTime(writer, nanoseconds);
     \\                            try writer.writeAll(")");
     \\                            if (days.color) try writer.writeAll("\x1b[0m");
-    \\                            _ = try writer.splatByte(' ', fill);
+    \\                            try writer.splatByteAll(' ', fill);
     \\                            try printAnswer(writer, part2);
     \\                        }
     \\                        total_ns += nanoseconds;
@@ -448,7 +447,7 @@ pub const runner_source: [:0]const u8 =
     \\        } else {
     \\            if (days.color) try writer.writeAll("\x1b[36m");
     \\            try writer.print("[{d:0>2}/*]", .{ day });
-    \\            if (days.color) _ = try writer.writeAll("\x1b[0m");
+    \\            if (days.color) try writer.writeAll("\x1b[0m");
     \\            try writer.writeAll("  ");
     \\            if (days.color) try writer.writeAll("\x1b[33m");
     \\            try writer.writeAll("(missing both parts)");
