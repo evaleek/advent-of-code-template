@@ -284,164 +284,40 @@ pub const runner_source: [:0]const u8 =
     \\
     \\                file.close();
     \\
-    \\                if (has_part_1 and (days.part == .@"1" or days.part == .both)) {
-    \\                    const Solution = @TypeOf(Day.part1);
-    \\                    if (comptime !isSolutionFn(Solution)) @compileError(std.fmt.comptimePrint(
-    \\                        "expected a solution function type, found {s}",
-    \\                        .{ @typeName(Solution) }
-    \\                    ));
-    \\                    const Return = @typeInfo(Solution).@"fn".return_type;
-    \\                    const is_err = if (Return) |R| @typeInfo(R) == .error_union else false;
-    \\
-    \\                    if (use_timer) {
-    \\                        var timer = Timer.start() catch unreachable;
-    \\                        const part1 = Day.part1(input);
-    \\                        const nanoseconds = timer.read();
-    \\
-    \\                        if (color) try writer.writeAll("\x1b[36m");
-    \\                        try writer.print("[{d:0>2}/1]", .{day});
-    \\                        if (color) try writer.writeAll("\x1b[0m");
-    \\
-    \\                        if (is_err) {
-    \\                            if (part1) |answer| {
-    \\                                try writer.writeAll(" ");
-    \\                                if (color) try writer.writeAll("\x1b[90m");
-    \\                                try writer.writeAll("(");
-    \\                                const fill = try printTime(writer, nanoseconds);
-    \\                                try writer.writeAll(")");
-    \\                                if (color) try writer.writeAll("\x1b[0m");
-    \\                                try writer.splatByteAll(' ', fill);
-    \\                                try printAnswer(writer, answer);
-    \\                            } else |err| {
-    \\                                try writer.writeAll("  ");
-    \\                                if (color) try writer.writeAll("\x1b[31m");
-    \\                                try writer.writeAll("failed");
-    \\                                if (color) try writer.writeAll("\x1b[0m");
-    \\                                try writer.print(": {t}\n", .{ err });
-    \\                                failed += 1;
-    \\                                if (days.failstop) {
-    \\                                    try writer.flush();
-    \\                                    break :iter_days;
-    \\                                }
-    \\                            }
-    \\                        } else {
-    \\                            try writer.writeAll(" ");
-    \\                            if (color) try writer.writeAll("\x1b[90m");
-    \\                            try writer.writeAll("(");
-    \\                            const fill = try printTime(writer, nanoseconds);
-    \\                            try writer.writeAll(")");
-    \\                            if (color) try writer.writeAll("\x1b[0m");
-    \\                            try writer.splatByteAll(' ', fill);
-    \\                            try printAnswer(writer, part1);
-    \\                        }
-    \\                        total_ns += nanoseconds;
-    \\                    } else {
-    \\                        const part1 = Day.part1(input);
-    \\
-    \\                        if (color) try writer.writeAll("\x1b[36m");
-    \\                        try writer.print("[{d:0>2}/1]", .{day});
-    \\                        if (color) try writer.writeAll("\x1b[0m");
-    \\
-    \\                        if (is_err) {
-    \\                            if (part1) |answer| {
-    \\                                try printAnswer(writer, answer);
-    \\                            } else |err| {
-    \\                                try writer.writeAll("  ");
-    \\                                if (color) try writer.writeAll("\x1b[31m");
-    \\                                try writer.writeAll("failed");
-    \\                                if (color) try writer.writeAll("\x1b[0m");
-    \\                                try writer.print(": {t}\n", .{ err });
-    \\                                failed += 1;
-    \\                                if (days.failstop) {
-    \\                                    try writer.flush();
-    \\                                    break :iter_days;
-    \\                                }
-    \\                            }
-    \\                        } else {
-    \\                            try printAnswer(writer, part1);
-    \\                        }
-    \\                    }
+    \\                if ((days.part == .@"1" or days.part == .both) and has_part_1) {
+    \\                    const result = try runAndPrintSolution(
+    \\                        writer,
+    \\                        Day.part1,
+    \\                        input,
+    \\                        day,
+    \\                        use_timer,
+    \\                        color,
+    \\                    );
     \\                    try writer.flush();
+    \\                    if (result) |ns| {
+    \\                        total_ns += ns;
+    \\                    } else {
+    \\                        failed += 1;
+    \\                        if (days.failstop) break :iter_days;
+    \\                    }
     \\                }
     \\
-    \\                if (has_part_2 and (days.part == .@"2" or days.part == .both)) {
-    \\                    const Solution = @TypeOf(Day.part2);
-    \\                    if (comptime !isSolutionFn(Solution)) @compileError(std.fmt.comptimePrint(
-    \\                        "expected a solution function type, found {s}",
-    \\                        .{ @typeName(Solution) }
-    \\                    ));
-    \\                    const Return = @typeInfo(Solution).@"fn".return_type;
-    \\                    const is_err = if (Return) |R| @typeInfo(R) == .error_union else false;
-    \\
-    \\                    if (use_timer) {
-    \\                        var timer = Timer.start() catch unreachable;
-    \\                        const part2 = Day.part2(input);
-    \\                        const nanoseconds = timer.read();
-    \\
-    \\                        if (color) try writer.writeAll("\x1b[36m");
-    \\                        try writer.print("[{d:0>2}/2]", .{day});
-    \\                        if (color) try writer.writeAll("\x1b[0m");
-    \\
-    \\                        if (is_err) {
-    \\                            if (part2) |answer| {
-    \\                                try writer.writeAll(" ");
-    \\                                if (color) try writer.writeAll("\x1b[90m");
-    \\                                try writer.writeAll("(");
-    \\                                const fill = try printTime(writer, nanoseconds);
-    \\                                try writer.writeAll(")");
-    \\                                if (color) try writer.writeAll("\x1b[0m");
-    \\                                try writer.splatByteAll(' ', fill);
-    \\                                try printAnswer(writer, answer);
-    \\                            } else |err| {
-    \\                                try writer.writeAll("  ");
-    \\                                if (color) try writer.writeAll("\x1b[31m");
-    \\                                try writer.writeAll("failed");
-    \\                                if (color) try writer.writeAll("\x1b[0m");
-    \\                                try writer.print(": {t}\n", .{ err });
-    \\                                failed += 1;
-    \\                                if (days.failstop) {
-    \\                                    try writer.flush();
-    \\                                    break :iter_days;
-    \\                                }
-    \\                            }
-    \\                        } else {
-    \\                            try writer.writeAll(" ");
-    \\                            if (color) try writer.writeAll("\x1b[90m");
-    \\                            try writer.writeAll("(");
-    \\                            const fill = try printTime(writer, nanoseconds);
-    \\                            try writer.writeAll(")");
-    \\                            if (color) try writer.writeAll("\x1b[0m");
-    \\                            try writer.splatByteAll(' ', fill);
-    \\                            try printAnswer(writer, part2);
-    \\                        }
-    \\                        total_ns += nanoseconds;
-    \\                    } else {
-    \\                        const part2 = Day.part2(input);
-    \\
-    \\                        if (color) try writer.writeAll("\x1b[36m");
-    \\                        try writer.print("[{d:0>2}/2]", .{day});
-    \\                        if (color) try writer.writeAll("\x1b[0m");
-    \\
-    \\                        if (is_err) {
-    \\                            if (part2) |answer| {
-    \\                                try printAnswer(writer, answer);
-    \\                            } else |err| {
-    \\                                try writer.writeAll("  ");
-    \\                                if (color) try writer.writeAll("\x1b[31m");
-    \\                                try writer.writeAll("failed");
-    \\                                if (color) try writer.writeAll("\x1b[0m");
-    \\                                try writer.print(": {t}\n", .{ err });
-    \\                                failed += 1;
-    \\                                if (days.failstop) {
-    \\                                    try writer.flush();
-    \\                                    break :iter_days;
-    \\                                }
-    \\                            }
-    \\                        } else {
-    \\                            try printAnswer(writer, part2);
-    \\                        }
-    \\                    }
+    \\                if ((days.part == .@"2" or days.part == .both) and has_part_2) {
+    \\                    const result = try runAndPrintSolution(
+    \\                        writer,
+    \\                        Day.part2,
+    \\                        input,
+    \\                        day,
+    \\                        use_timer,
+    \\                        color,
+    \\                    );
     \\                    try writer.flush();
+    \\                    if (result) |ns| {
+    \\                        total_ns += ns;
+    \\                    } else {
+    \\                        failed += 1;
+    \\                        if (days.failstop) break :iter_days;
+    \\                    }
     \\                }
     \\            }
     \\        } else {
@@ -467,6 +343,88 @@ pub const runner_source: [:0]const u8 =
     \\        try writer.writeAll("\n");
     \\    }
     \\    try writer.flush();
+    \\}
+    \\
+    \\fn runAndPrintSolution(
+    \\    writer: *std.Io.Writer,
+    \\    solution: anytype,
+    \\    input: []u8,
+    \\    day: usize,
+    \\    use_timer: bool,
+    \\    color: bool,
+    \\) !?u64 {
+    \\    const Solution = @TypeOf(solution);
+    \\    if (comptime !isSolutionFn(Solution)) @compileError(std.fmt.comptimePrint(
+    \\        "expected a solution function type, found {s}",
+    \\        .{ @typeName(Solution) },
+    \\    ));
+    \\    const Return = @typeInfo(Solution).@"fn".return_type;
+    \\    const is_err = if (Return) |R| @typeInfo(R) == .error_union else false;
+    \\
+    \\    if (use_timer) {
+    \\        const part, const nanoseconds = timer: {
+    \\            var timer = Timer.start() catch unreachable;
+    \\            const answer = solution(input);
+    \\            const t = timer.read();
+    \\            break :timer .{ answer, t };
+    \\        };
+    \\
+    \\        if (color) try writer.writeAll("\x1b[36m");
+    \\        try writer.print("[{d:0>2}/1]", .{day});
+    \\        if (color) try writer.writeAll("\x1b[0m");
+    \\
+    \\        if (is_err) {
+    \\            if (part) |answer| {
+    \\                try writer.writeAll(" ");
+    \\                if (color) try writer.writeAll("\x1b[90m");
+    \\                try writer.writeAll("(");
+    \\                const fill = try printTime(writer, nanoseconds);
+    \\                try writer.writeAll(")");
+    \\                if (color) try writer.writeAll("\x1b[0m");
+    \\                try writer.splatByteAll(' ', fill);
+    \\                try printAnswer(writer, answer);
+    \\                return nanoseconds;
+    \\            } else |err| {
+    \\                try writer.writeAll("  ");
+    \\                if (color) try writer.writeAll("\x1b[31m");
+    \\                try writer.writeAll("failed");
+    \\                if (color) try writer.writeAll("\x1b[0m");
+    \\                try writer.print(": {t}\n", .{ err });
+    \\                return null;
+    \\            }
+    \\        } else {
+    \\            try writer.writeAll(" ");
+    \\            if (color) try writer.writeAll("\x1b[90m");
+    \\            try writer.writeAll("(");
+    \\            const fill = try printTime(writer, nanoseconds);
+    \\            try writer.writeAll(")");
+    \\            if (color) try writer.writeAll("\x1b[0m");
+    \\            try writer.splatByteAll(' ', fill);
+    \\            try printAnswer(writer, part);
+    \\            return nanoseconds;
+    \\        }
+    \\    } else {
+    \\        const part = solution(input);
+    \\
+    \\        if (color) try writer.writeAll("\x1b[36m");
+    \\        try writer.print("[{d:0>2}/1]", .{day});
+    \\        if (color) try writer.writeAll("\x1b[0m");
+    \\
+    \\        if (is_err) {
+    \\            if (part) |answer| {
+    \\                try printAnswer(writer, answer);
+    \\        } else |err| {
+    \\                try writer.writeAll("  ");
+    \\                if (color) try writer.writeAll("\x1b[31m");
+    \\                try writer.writeAll("failed");
+    \\                if (color) try writer.writeAll("\x1b[0m");
+    \\                try writer.print(": {t}\n", .{ err });
+    \\            }
+    \\        } else {
+    \\            try printAnswer(writer, part);
+    \\        }
+    \\        return 0;
+    \\    }
     \\}
     \\
     \\fn isSolutionFn(Fn: type) bool {
