@@ -20,7 +20,7 @@ const std = @import("std");
 (`input/2015/day03.txt` exists)
 
 ```console
-$ zig build solve -Dday=..3
+$ zig build solve -Dday=..3 -Dyear=2015
 [01/1] (43.3 µs)    foo
 All your codebase are belong to us.
 [01/2]  failed: Overflow
@@ -52,7 +52,7 @@ build.zig
 In each `day_DD.zig`, the solution program checks for and runs
 top-level `pub` functions named `part1()` and `part2()`,
 each of which must accept a slice of bytes (`[]const u8` or `[]u8`),
-which contains that day's input string as it appears in `input/YYYY/day01.txt`.
+which contains that day's input string as it appears in `input/YYYY/dayDD.txt`.
 You may safely mutate the slice. Do not free the slice.
 The solution functions may return
 any type printable with `{any}`,
