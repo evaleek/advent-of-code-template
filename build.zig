@@ -78,6 +78,9 @@ pub fn build(b: *Build) error{OutOfMemory}!void {
     runner_exe.step.dependOn(&write_runner_source.step);
     const run_cmd = b.addRunArtifact(runner_exe);
     run_step.dependOn(&run_cmd.step);
+    run_cmd.setCwd(b.path("./"));
+
+    b.installArtifact(runner_exe);
 
     const runner_day_options = b.addOptions();
     runner_day_options.addOption(bool, "timer", timer);
@@ -222,25 +225,25 @@ pub const runner_source: [:0]const u8 =
     \\    // TODO fs -> Io in 0.16
     \\    const cwd = std.fs.cwd();
     \\    const rel_path = try std.fmt.allocPrint(allocator, "./input/{s}", .{days.year});
+    \\    defer allocator.free(rel_path);
     \\    const sub_path = rel_path[2..];
     \\    const input_dir = cwd.openDir(sub_path, .{}) catch |err| {
-    \\        const path = try cwd.realpathAlloc(allocator, rel_path);
+    \\        const dir_path = try cwd.realpathAlloc(allocator, ".");
+    \\        defer allocator.free(dir_path);
+    \\        const path = try std.fmt.allocPrint(allocator, "{s}/input/{s}", .{ dir_path, days.year });
     \\        defer allocator.free(path);
     \\        switch (err) {
     \\            error.FileNotFound, error.NotDir => {
-    \\                try writer.print("No input files: expected input directory at\n    {s}", .{ path });
+    \\                try writer.print("No input files: expected input directory at\n    {s}\n", .{ path });
     \\                try writer.flush();
-    \\                allocator.free(rel_path);
     \\                return;
     \\            },
     \\            else => |e| {
     \\                std.log.err("'{s}' access failure: {t}", .{ path, e });
-    \\                allocator.free(rel_path);
     \\                return err;
     \\            },
     \\        }
     \\    };
-    \\    allocator.free(rel_path);
     \\
     \\    var total_ns: u64 = 0;
     \\    var failed: u16 = 0;
