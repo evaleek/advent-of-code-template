@@ -75,4 +75,9 @@ for any single day or range of days:
 - `-Dday=5..7`: the same, for days 5, 6, and 7, serially
 - `-Dday=..7`: the same, for days 1-7, serially
 
+**A note for new Zig users**:
+the `-Dday` flag here takes an end-inclusive range,
+but in actual Zig syntax (in `for` loops or slicing)
+ranges are always end-*exclusive*.
+
 The results are printed directly to `stdout`.
