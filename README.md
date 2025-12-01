@@ -49,6 +49,10 @@ YYYY/
 build.zig
 ```
 
+If you manually install and run the `advent-of-code-YYYY` executable
+with the `install` step (if for example using it with a debugger),
+please run it from the same directory containing the `input/` directory.
+
 In each `day_DD.zig`, the solution program checks for and runs
 top-level `pub` functions named `part1()` and `part2()`,
 each of which must accept a slice of bytes (`[]const u8` or `[]u8`),
