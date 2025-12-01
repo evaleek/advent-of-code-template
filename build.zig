@@ -220,21 +220,26 @@ pub const runner_source: [:0]const u8 =
     \\
     \\    // TODO fs -> Io in 0.16
     \\    const cwd = std.fs.cwd();
-    \\    const input_dir = cwd.openDir("input", .{}) catch |err| {
-    \\        const path = try cwd.realpathAlloc(allocator, "./input");
+    \\    const rel_path = try std.fmt.allocPrint(allocator, "./input/{s}", .{days.year});
+    \\    const sub_path = rel_path[2..];
+    \\    const input_dir = cwd.openDir(sub_path, .{}) catch |err| {
+    \\        const path = try cwd.realpathAlloc(allocator, rel_path);
     \\        defer allocator.free(path);
     \\        switch (err) {
     \\            error.FileNotFound, error.NotDir => {
     \\                try writer.print("No input files: expected input directory at\n    {s}", .{ path });
     \\                try writer.flush();
+    \\                allocator.free(rel_path);
     \\                return;
     \\            },
     \\            else => |e| {
     \\                std.log.err("'{s}' access failure: {t}", .{ path, e });
+    \\                allocator.free(rel_path);
     \\                return err;
     \\            },
     \\        }
     \\    };
+    \\    allocator.free(rel_path);
     \\
     \\    var total_ns: u64 = 0;
     \\    var failed: u16 = 0;
@@ -270,6 +275,7 @@ pub const runner_source: [:0]const u8 =
     \\                        std.log.err("'{s}/{s}' access failure: {t}", .{ path, input_file_name, e });
     \\                    },
     \\                }
+    \\                allocator.free(input_file_name);
     \\                break :err null;
     \\            };
     \\            allocator.free(input_file_name);
