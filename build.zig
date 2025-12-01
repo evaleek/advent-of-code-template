@@ -102,12 +102,13 @@ pub fn build(b: *Build) error{OutOfMemory}!void {
                     .target = target,
                     .optimize = optimize,
                 });
+                runner_mod.addImport(b.fmt("day_{d}", .{day}), day_mod);
                 const day_test = b.addTest(.{
                     .name = b.fmt("day-{d}-test", .{day}),
                     .root_module = day_mod,
                 });
-                runner_mod.addImport(b.fmt("day_{d}", .{day}), day_mod);
-                test_step.dependOn(&day_test.step);
+                const run_day_test = b.addRunArtifact(day_test);
+                test_step.dependOn(&run_day_test.step);
             }
         } else |err| {
             const fail = b.addFail( switch (err) {
