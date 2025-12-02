@@ -102,5 +102,5 @@ The solution runner keeps a writer to `stdout`, and for each day, it
 4. Prints the results
 
 Note then that the printed times are not a proper benchmark,
-but they are an accurate measure of the time it takes for each solution function to execute,
+but they are a precise measure of the time it takes for each solution function to execute,
 without the IO time of fetching input or printing results included.
