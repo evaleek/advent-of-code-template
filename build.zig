@@ -289,20 +289,22 @@ pub const runner_source: [:0]const u8 =
     \\            allocator.free(input_file_name);
     \\
     \\            if (input_file) |file| {
-    \\                const input: []u8 = read_input: {
+    \\                const input_1: []u8 = read_input: {
     \\                    var file_reader = if (new_io) file.reader(io, &.{}) else file.reader(&.{});
     \\                    const reader = &file_reader.interface;
     \\                    break :read_input try reader.allocRemaining(allocator, .unlimited);
     \\                };
-    \\                defer allocator.free(input);
-    \\
+    \\                defer allocator.free(input_1);
     \\                file.close();
+    \\                const input_2: []u8 = try allocator.alloc(u8, input_1.len);
+    \\                defer allocator.free(input_2);
+    \\                @memcpy(input_2, input_1);
     \\
     \\                if ((days.part == .@"1" or days.part == .both) and has_part_1) {
     \\                    const result = try runAndPrintSolution(
     \\                        writer,
     \\                        Day.part1,
-    \\                        input,
+    \\                        input_1,
     \\                        day,
     \\                        use_timer,
     \\                        color,
@@ -320,7 +322,7 @@ pub const runner_source: [:0]const u8 =
     \\                    const result = try runAndPrintSolution(
     \\                        writer,
     \\                        Day.part2,
-    \\                        input,
+    \\                        input_2,
     \\                        day,
     \\                        use_timer,
     \\                        color,
