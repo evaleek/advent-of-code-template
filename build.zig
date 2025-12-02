@@ -222,7 +222,11 @@ pub const runner_source: [:0]const u8 =
     \\        std.log.err("performance timer is unsupported on the host system", .{});
     \\    const color = days.color and @import("builtin").target.os.tag != .windows;
     \\
-    \\    // TODO fs -> Io in 0.16
+    \\    const new_io = @hasDecl(std.Io, "File");
+    \\    var threaded = if (new_io) std.Io.Threaded.init_single_threaded else {};
+    \\    defer { if (new_io) threaded.deinit(); }
+    \\    const io = if (new_io) threaded.io() else {};
+    \\
     \\    const cwd = std.fs.cwd();
     \\    const rel_path = try std.fmt.allocPrint(allocator, "./input/{s}", .{days.year});
     \\    defer allocator.free(rel_path);
@@ -286,7 +290,7 @@ pub const runner_source: [:0]const u8 =
     \\
     \\            if (input_file) |file| {
     \\                const input: []u8 = read_input: {
-    \\                    var file_reader = file.reader(&.{});
+    \\                    var file_reader = if (new_io) file.reader(io, &.{}) else file.reader(&.{});
     \\                    const reader = &file_reader.interface;
     \\                    break :read_input try reader.allocRemaining(allocator, .unlimited);
     \\                };
