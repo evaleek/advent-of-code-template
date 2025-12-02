@@ -201,8 +201,7 @@ test parseIntRange {
 
 pub const Day = u8;
 
-// This allows the entire helper script to live in a single distributable file,
-// but might get me scolded on forums.
+// This allows the entire helper script to live in a single distributable file.
 pub const runner_source: [:0]const u8 =
     \\pub fn main() !void {
     \\    var debug_allocator: std.heap.DebugAllocator(.{}) = .init;

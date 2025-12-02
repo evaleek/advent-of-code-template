@@ -76,3 +76,31 @@ for any single day or range of days:
 - `-Dday=..7`: the same, for days 1-7, serially
 
 The results are printed directly to `stdout`.
+
+## Implementation
+
+A string with Zig source code for a runner executable is kept statically in `build.zig`.
+This allows the entire convenience script to live in a single distributable source file,
+but it would be more typical to keep this committed as a dedicated source file
+that `build.zig` adds to the build graph via `LazyPath`.
+Instead, it uses `Build.addWriteFile`,
+which tells the build to cache the executable source as a file,
+and points to the cached file path as the root source path of the executable module.
+
+The executable module imports modules named from day 1 to 31,
+but because declarations are evaluated lazily,
+it will only reference the range of days passed to it via build option.
+Another way to accomplish this,
+and one that would allow any range or names of solution modules,
+would be to write `@import` lines into the source string passed to `addWriteFile`.
+
+The solution runner keeps a writer to `stdout`, and for each day, it
+
+1. Opens a reader to the matching day's input file
+2. Reads and double allocates (so that each part can mutate) the day's input
+3. Starts a performance timer, calls `day_DD.partN()`, and immediately reads the timer
+4. Prints the results
+
+Note then that the printed times are not a proper benchmark,
+but they are an accurate measure of the time it takes for each solution function to execute,
+without the IO time of fetching input or printing results included.
