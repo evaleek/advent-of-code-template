@@ -26,4 +26,4 @@ curl "https://adventofcode.com/${YEAR}/day/${DAY}/input" \
     --compressed \
     -o "$OUTFILE"
 
-echo "Saved input as $OUTFILE"
+echo "Wrote input to $OUTFILE"
