@@ -104,3 +104,8 @@ The solution runner keeps a writer to `stdout`, and for each day, it
 Note then that the printed times are not a proper benchmark,
 but they are a precise measure of the time it takes for each solution function to execute,
 without the IO time of fetching input or printing results included.
+
+Proper benchmarking is included as a build flag (`-Dbench=true`).
+A benchmarked solution has its execution time measured just as before
+(without IO time, purely the time it takes for the solution function to return),
+and the times of all iterations (default 10000) are used to print statistics.
