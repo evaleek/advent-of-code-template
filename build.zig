@@ -48,6 +48,16 @@ pub fn build(b: *Build) error{OutOfMemory}!void {
         "time",
         "Print performance time of each solution (default: true)",
     ) orelse true;
+    const bench = b.option(
+        bool,
+        "bench",
+        "Benchmark each solution (default: false)",
+    ) orelse false;
+    const bench_iter = b.option(
+        u32,
+        "bench-iter",
+        "How many iterations to run benchmarked solutions (default: 10000)",
+    ) orelse 10000;
     const color = b.option(
         bool,
         "color",
@@ -84,6 +94,8 @@ pub fn build(b: *Build) error{OutOfMemory}!void {
 
     const runner_day_options = b.addOptions();
     runner_day_options.addOption(bool, "timer", timer);
+    runner_day_options.addOption(bool, "bench", bench);
+    runner_day_options.addOption(u32, "bench_iter", bench_iter);
     runner_day_options.addOption(bool, "color", color);
     runner_day_options.addOption(bool, "failstop", stop_at_failure);
     runner_day_options.addOption([]const u8, "year", year);
@@ -216,10 +228,14 @@ pub const runner_source: [:0]const u8 =
     \\    const writer = &stdout_writer.interface;
     \\
     \\    const timer_supported = !std.meta.isError(time.Instant.now());
-    \\    const use_timer = days.timer and timer_supported;
-    \\    if (days.timer and !timer_supported)
+    \\    const use_timer = ( days.timer or days.bench ) and timer_supported;
+    \\    if ((days.timer or days.bench) and !timer_supported)
     \\        std.log.err("performance timer is unsupported on the host system", .{});
-    \\    const color = days.color and @import("builtin").target.os.tag != .windows;
+    \\    const color = days.color and switch (std.Io.tty.Config.detect(stdout)) {
+    \\        .no_color => false,
+    \\        .escape_codes => true,
+    \\        .windows_api => false,
+    \\    };
     \\
     \\    const new_io = @hasDecl(std.Io, "File");
     \\    var threaded = if (new_io) std.Io.Threaded.init_single_threaded else {};
@@ -250,6 +266,8 @@ pub const runner_source: [:0]const u8 =
     \\
     \\    var total_ns: u64 = 0;
     \\    var failed: u16 = 0;
+    \\
+    \\    const use_bench = days.bench and days.bench_iter > 1;
     \\
     \\    const start = days.start;
     \\    const end = start + days.count;
@@ -300,14 +318,22 @@ pub const runner_source: [:0]const u8 =
     \\                @memcpy(input_2, input_1);
     \\
     \\                if ((days.part == .@"1" or days.part == .both) and has_part_1) {
-    \\                    const result = try runAndPrintSolution(
-    \\                        writer,
-    \\                        Day.part1,
-    \\                        input_1,
-    \\                        day,
-    \\                        use_timer,
-    \\                        color,
-    \\                    );
+    \\                    const result =
+    \\                        if (use_bench) try benchAndPrintSolution(
+    \\                            writer,
+    \\                            allocator,
+    \\                            Day.part1,
+    \\                            input_1,
+    \\                            day,
+    \\                            color,
+    \\                        ) else try runAndPrintSolution(
+    \\                            writer,
+    \\                            Day.part1,
+    \\                            input_1,
+    \\                            day,
+    \\                            use_timer,
+    \\                            color,
+    \\                        );
     \\                    try writer.flush();
     \\                    if (result) |ns| {
     \\                        total_ns += ns;
@@ -318,14 +344,22 @@ pub const runner_source: [:0]const u8 =
     \\                }
     \\
     \\                if ((days.part == .@"2" or days.part == .both) and has_part_2) {
-    \\                    const result = try runAndPrintSolution(
-    \\                        writer,
-    \\                        Day.part2,
-    \\                        input_2,
-    \\                        day,
-    \\                        use_timer,
-    \\                        color,
-    \\                    );
+    \\                    const result =
+    \\                        if (use_bench) try benchAndPrintSolution(
+    \\                            writer,
+    \\                            allocator,
+    \\                            Day.part2,
+    \\                            input_2,
+    \\                            day,
+    \\                            color,
+    \\                        ) else try runAndPrintSolution(
+    \\                            writer,
+    \\                            Day.part2,
+    \\                            input_2,
+    \\                            day,
+    \\                            use_timer,
+    \\                            color,
+    \\                        );
     \\                    try writer.flush();
     \\                    if (result) |ns| {
     \\                        total_ns += ns;
@@ -348,7 +382,11 @@ pub const runner_source: [:0]const u8 =
     \\    }
     \\
     \\    if (total_ns > 0) {
-    \\        try writer.writeAll("Total elapsed solution time: ");
+    \\        if (days.bench) {
+    \\            try writer.writeAll("Total elapsed benchmark time: ");
+    \\        } else {
+    \\            try writer.writeAll("Total elapsed solution time: ");
+    \\        }
     \\        _ = try printTime(writer, total_ns);
     \\        if (failed > 0) {
     \\            try writer.print(" (excluding {d} failure", .{ failed });
@@ -440,6 +478,129 @@ pub const runner_source: [:0]const u8 =
     \\        }
     \\        return 0;
     \\    }
+    \\}
+    \\
+    \\fn benchAndPrintSolution(
+    \\    writer: *std.Io.Writer,
+    \\    allocator: std.mem.Allocator,
+    \\    solution: anytype,
+    \\    input: []const u8,
+    \\    day: usize,
+    \\    color: bool,
+    \\) !?u64 {
+    \\    const Solution = @TypeOf(solution);
+    \\    if (comptime !isSolutionFn(Solution)) @compileError(std.fmt.comptimePrint(
+    \\        "expected a solution function type, found {s}",
+    \\        .{ @typeName(Solution) },
+    \\    ));
+    \\    const Return = @typeInfo(Solution).@"fn".return_type;
+    \\    const is_err = if (Return) |R| @typeInfo(R) == .error_union else false;
+    \\    const Answer = if (Return) |R| switch (@typeInfo(R)) {
+    \\        .error_union => |eu| eu.payload,
+    \\        else => R,
+    \\    } else @compileError("cannot infer " ++ @typeName(Solution) ++ " return type");
+    \\
+    \\    // Don't gracefully handle an unsupported timer here,
+    \\    // because on this path the exe needs to deliver benchmarks.
+    \\    var timer = try Timer.start();
+    \\
+    \\    const input_buffer: []u8 = try allocator.alloc(u8, input.len);
+    \\    defer allocator.free(input_buffer);
+    \\
+    \\    const times: []u64 = try allocator.alloc(u64, days.bench_iter);
+    \\    defer allocator.free(times);
+    \\
+    \\    if (color) try writer.writeAll("\x1b[36m");
+    \\    try writer.print("[{d:0>2}/1]", .{day});
+    \\    if (color) try writer.writeAll("\x1b[0m");
+    \\
+    \\    var answer_variants: u32 = 0;
+    \\    var first_answer: bool = true;
+    \\    var last_answer: Answer = undefined;
+    \\
+    \\    for (times) |*t| {
+    \\        @memcpy(input_buffer, input);
+    \\
+    \\        timer.reset();
+    \\        const answer = solution(input_buffer);
+    \\        t.* = timer.read();
+    \\
+    \\        if (is_err) {
+    \\            if (answer) |a| {
+    \\                if (!first_answer and a != last_answer) answer_variants += 1;
+    \\                last_answer = a;
+    \\                first_answer = false;
+    \\            } else |err| {
+    \\                try writer.writeAll("  ");
+    \\                if (color) try writer.writeAll("\x1b[31m");
+    \\                try writer.writeAll("failed");
+    \\                if (color) try writer.writeAll("\x1b[0m");
+    \\                try writer.print(": {t}\n", .{ err });
+    \\                return null;
+    \\            }
+    \\        } else {
+    \\            if (!first_answer and answer != last_answer) answer_variants += 1;
+    \\            last_answer = answer;
+    \\            first_answer = false;
+    \\        }
+    \\    }
+    \\
+    \\    std.mem.sort(u64, times, {}, std.sort.asc(u64));
+    \\    const min_ns: u64 = times[0];
+    \\    const max_ns: u64 = times[times.len-1];
+    \\    const sum_ns: u64 = pass: {
+    \\        var sum: u64 = 0;
+    \\        for (times) |t| sum += t;
+    \\        break :pass sum;
+    \\    };
+    \\    const mean_ns: u64 = sum_ns / times.len;
+    \\    const middle_index = @divTrunc(times.len, 2);
+    \\    const median_ns: u64 =
+    \\        if (times.len%2==1) times[middle_index]
+    \\        else (times[middle_index-1] + times[middle_index]) / 2;
+    \\    const stddev: u64 = pass: {
+    \\        var sum: f64 = 0.0;
+    \\        for (times) |t| {
+    \\            const t_float: f64 = @floatFromInt(t);
+    \\            const mean_ns_float: f64 = @floatFromInt(mean_ns);
+    \\            const diff = t_float - mean_ns_float;
+    \\            sum += diff*diff;
+    \\        }
+    \\        const variance = sum / @as(f64, @floatFromInt(times.len));
+    \\        break :pass @intFromFloat(@sqrt(variance));
+    \\    };
+    \\
+    \\    try printAnswer(writer, last_answer);
+    \\    if (answer_variants > 0) {
+    \\        if (color) try writer.writeAll("\x1b[31m");
+    \\        try writer.print(" final ^ (received {d} different answers)\n", .{ answer_variants+1 });
+    \\        if (color) try writer.writeAll("\x1b[0m");
+    \\    }
+    \\    try writer.writeAll("  ");
+    \\    if (color) try writer.writeAll("\x1b[90m");
+    \\    try writer.writeAll("\xce\xbc\xc2\xb1\xcf\x83: ");
+    \\    if (color) try writer.writeAll("\x1b[0m");
+    \\    _ = try printTime(writer, mean_ns);
+    \\    try writer.writeAll(" \xc2\xb1 ");
+    \\    _ = try printTime(writer, stddev);
+    \\    try writer.writeAll("\n  ");
+    \\    if (color) try writer.writeAll("\x1b[90m");
+    \\    try writer.writeAll("med: ");
+    \\    if (color) try writer.writeAll("\x1b[0m");
+    \\    _ = try printTime(writer, median_ns);
+    \\    try writer.writeAll("\n  ");
+    \\    if (color) try writer.writeAll("\x1b[90m");
+    \\    try writer.writeAll("min: ");
+    \\    if (color) try writer.writeAll("\x1b[0m");
+    \\    _ = try printTime(writer, min_ns);
+    \\    try writer.writeAll("\n  ");
+    \\    if (color) try writer.writeAll("\x1b[90m");
+    \\    try writer.writeAll("max: ");
+    \\    if (color) try writer.writeAll("\x1b[0m");
+    \\    _ = try printTime(writer, max_ns);
+    \\    try writer.writeByte('\n');
+    \\
+    \\    return sum_ns;
     \\}
     \\
     \\fn isSolutionFn(Fn: type) bool {
