@@ -325,12 +325,14 @@ pub const runner_source: [:0]const u8 =
     \\                            Day.part1,
     \\                            input_1,
     \\                            day,
+    \\                            1,
     \\                            color,
     \\                        ) else try runAndPrintSolution(
     \\                            writer,
     \\                            Day.part1,
     \\                            input_1,
     \\                            day,
+    \\                            1,
     \\                            use_timer,
     \\                            color,
     \\                        );
@@ -351,12 +353,14 @@ pub const runner_source: [:0]const u8 =
     \\                            Day.part2,
     \\                            input_2,
     \\                            day,
+    \\                            2,
     \\                            color,
     \\                        ) else try runAndPrintSolution(
     \\                            writer,
     \\                            Day.part2,
     \\                            input_2,
     \\                            day,
+    \\                            2,
     \\                            use_timer,
     \\                            color,
     \\                        );
@@ -403,6 +407,7 @@ pub const runner_source: [:0]const u8 =
     \\    solution: anytype,
     \\    input: []u8,
     \\    day: usize,
+    \\    part_n: u8,
     \\    use_timer: bool,
     \\    color: bool,
     \\) !?u64 {
@@ -423,7 +428,7 @@ pub const runner_source: [:0]const u8 =
     \\        };
     \\
     \\        if (color) try writer.writeAll("\x1b[36m");
-    \\        try writer.print("[{d:0>2}/1]", .{day});
+    \\        try writer.print("[{d:0>2}/{d}]", .{ day, part_n });
     \\        if (color) try writer.writeAll("\x1b[0m");
     \\
     \\        if (is_err) {
@@ -486,6 +491,7 @@ pub const runner_source: [:0]const u8 =
     \\    solution: anytype,
     \\    input: []const u8,
     \\    day: usize,
+    \\    part_n: u8,
     \\    color: bool,
     \\) !?u64 {
     \\    const Solution = @TypeOf(solution);
@@ -511,7 +517,7 @@ pub const runner_source: [:0]const u8 =
     \\    defer allocator.free(times);
     \\
     \\    if (color) try writer.writeAll("\x1b[36m");
-    \\    try writer.print("[{d:0>2}/1]", .{day});
+    \\    try writer.print("[{d:0>2}/{d}]", .{ day, part_n });
     \\    if (color) try writer.writeAll("\x1b[0m");
     \\
     \\    var answer_variants: u32 = 0;
