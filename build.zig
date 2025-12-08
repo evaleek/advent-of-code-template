@@ -465,7 +465,7 @@ pub const runner_source: [:0]const u8 =
     \\        const part = solution(input);
     \\
     \\        if (color) try writer.writeAll("\x1b[36m");
-    \\        try writer.print("[{d:0>2}/1]", .{day});
+    \\        try writer.print("[{d:0>2}/{d}]", .{ day, part_n });
     \\        if (color) try writer.writeAll("\x1b[0m");
     \\
     \\        if (is_err) {
